@@ -2,15 +2,6 @@
 import ReactDOM from 'react-dom';
 import './index.css';
 
-//class Square extends React.Component {
-//    render() {
-//        return (
-//            <button className="square" onClick={() => this.props.onClick()}>
-//                {this.props.value}
-//            </button>
-//        );
-//    }
-//}
 function Square(props) {
     return (
         <button className="square" onClick={props.onClick}>
@@ -19,19 +10,15 @@ function Square(props) {
     );
 }
 
-class Board extends React.Component {
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            squares: Array(9).fill(null),
-            xIsNext: true,
-        };
+class Board extends React.Component {   
+    state = {
+        squares: Array(9).fill(null),
+        xIsNext: true,
+        players: ['','']
     }
 
     handleClick(i) {
-        const squares = this.state.squares.slice();
-        console.log(squares[i]);
+        const squares = this.state.squares.slice();        
         if (calculateWinner(squares) || squares[i]) {
             return;
         }
@@ -43,11 +30,27 @@ class Board extends React.Component {
         return <Square value={this.state.squares[i]} onClick={() => this.handleClick(i)} />;
     }
 
+    updatePlayers = (players) => {        
+        this.setState({players})
+        
+    }
+
+    resetGame = () => {
+        this.setState({
+            squares: Array(9).fill(null),
+            xIsNext: true,
+            players: ['','']
+        })
+    }
+
     render() {
         const winner = calculateWinner(this.state.squares);
         let status;
-        if (winner) {
-            status = 'Winner: ' + winner;
+        let gameOver=false;
+
+        if (winner) {            
+            gameOver = true;
+            status = 'Winner: ' + ( (winner == 'X') ? this.state.players[0] : this.state.players[1]);
         } else {
             let gameEnd = true;
             for (var i = 0; i < this.state.squares.length; i++) {
@@ -57,14 +60,19 @@ class Board extends React.Component {
                 }
             }
             if (gameEnd) {
-                status = 'Game is over, no winner is possible!';
+                status = 'Game is over, no winner is possible!';                 
+                gameOver = true;
             } else {
-                status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+                status = 'Next player: ' + (this.state.xIsNext ? this.state.players[0] : this.state.players[1]);
             }            
         }
 
         return (
-            <div>
+            <div className="game-container"> 
+                <h3>LETS PLAY TIC-TAC-TOE!</h3>
+
+                <Players onAddPlayers={this.updatePlayers} player1={this.state.players[0]} player2={this.state.players[1]} />
+                                
                 <div className="status">{status}</div>
                 <div className="board-row">
                     {this.renderSquare(0)}
@@ -81,10 +89,14 @@ class Board extends React.Component {
                     {this.renderSquare(7)}
                     {this.renderSquare(8)}
                 </div>
-            </div>
+
+                { gameOver ? <div><button onClick={this.resetGame}>Reset Game</button></div> : '' }
+                                    
+            </div>            
         );
     }
 }
+
 
 class Game extends React.Component {
     render() {
@@ -98,6 +110,76 @@ class Game extends React.Component {
                     <ol>{/* TODO */}</ol>
                 </div>
             </div>
+        );
+    }
+}
+
+class PlayersUncontrolled extends React.Component {    
+
+    addPlayers = () => {
+        document.getElementById('player-1')
+        var p1 = document.getElementById('player-1').value;
+        var p2 = document.getElementById('player-2').value;        
+        var players = [p1, p2]
+        this.props.onAddPlayers(players);                
+    }
+    
+    render(){
+        const { onAddPlayers} = this.props;
+        return(
+            <div>
+                <div>
+                    <label >Player 1 Enter Your Name: </label>
+                    <input value={this.props.player1} name='player-1' id='player-1'/>
+                </div>                
+                <div>                    
+                    <label >Player 2 Enter Your Name: </label>
+                    <input value={this.props.player2} name='player-2' id='player-2'/>                
+                </div>
+                <div>
+                    <button onClick={this.addPlayers}>Add Players</button>
+                </div>
+            </div>                        
+        );
+    }
+}
+
+class Players extends React.Component {    
+
+    state = {
+        player1 : this.props.player1,
+        player2 : this.props.player2
+    }
+
+    addPlayers = () => {
+        var players = [this.state.player1, this.state.player2]
+        this.props.onAddPlayers(players);                
+    }
+    
+    handlePlayer=(e) => {        
+        if(e.target.name === 'player-1'){
+            this.setState({player1 : e.target.value})        
+        }else{
+            this.setState({player2 : e.target.value})        
+        }            
+    }    
+
+    render(){
+        const { onAddPlayers} = this.props;
+        return(
+            <div>
+                <div>
+                    <label >Player 1 Enter Your Name: </label>
+                    <input value={this.state.player1} onChange={this.handlePlayer} name='player-1'/>
+                </div>                
+                <div>                    
+                    <label >Player 2 Enter Your Name: </label>
+                    <input value={this.state.player2} onChange={this.handlePlayer} name='player-2'/>                
+                </div>
+                <div>
+                    <button onClick={this.addPlayers}>Add Players</button>
+                </div>
+            </div>                        
         );
     }
 }
@@ -124,8 +206,6 @@ function calculateWinner(squares) {
     for (let i = 0; i < lines.length; i++) {
         const [a, b, c] = lines[i];
         if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-            console.log(squares[a]);
-            console.log(squares[a] ? true : false);
             return squares[a];
         }
     }

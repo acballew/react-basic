@@ -48,3 +48,11 @@ ol, ul {
 .game-info {
     margin-left: 20px;
 }
+
+
+.game-container{
+    padding: 15px;
+    border-color: blue;
+    border-width: 2px;
+    border-style: solid;
+}
