@@ -49,10 +49,19 @@ ol, ul {
     margin-left: 20px;
 }
 
+.players{
+    margin-bottom: 15px;
+}
 
 .game-container{
     padding: 15px;
     border-color: blue;
     border-width: 2px;
     border-style: solid;
+}
+
+.board{
+    position: relative;
+    
+    margin: auto;
 }
