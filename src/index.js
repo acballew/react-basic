@@ -211,3 +211,7 @@ function calculateWinner(squares) {
     }
     return null;
 }
+
+function Test() {
+    return "";
+}
